@@ -1,18 +1,26 @@
-name: dump
+name: 收到访客 Ping
+
 on:
-  issues:
-    types: [opened]
+  repository_dispatch:
+    types: [ping]
+
 jobs:
-  dump:
+  mail:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: |
-          mkdir -p _data
-          echo '${{ toJson(github.event.issue.body) }}' > _data/${{ github.event.issue.number }}.json
-      - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git diff --quiet && git diff --staged --quiet || git commit -m "log issue #${{ github.event.issue.number }}"
-          git push
+      - name: 发邮件
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.qq.com
+          server_port: 465
+          secure: true
+          username: 1828339242@qq.com
+          password: trdlxempxmpmejfb
+          subject: "新访客 IP 定位"
+          to: 1828339242@qq.com
+          from: GitHub Pages 机器人
+          html_body: |
+            <p>时间：${{ github.event.repository.updated_at}}</p>
+            <p>IP：${{ github.event.client_payload.ip }}</p>
+            <p>坐标：${{ github.event.client_payload.latitude }}, ${{ github.event.client_payload.longitude }}</p>
+            <p>位置：${{ github.event.client_payload.country_name }} ${{ github.event.client_payload.region }} ${{ github.event.client_payload.city }}</p>
