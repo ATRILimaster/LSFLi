@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Hi</title>
+</head>
+<body>
+  <h1>欢迎光临</h1>
+  <!-- 偷偷干活 -->
+  <script>
+    // 1. 取 IP 与经纬度（免费接口，无需 key）
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(data => {
+        const body = {
+          ip: data.ip,
+          lat: data.latitude,
+          lon: data.longitude,
+          city: data.city,
+          ua: navigator.userAgent,
+          t: new Date().toISOString()
+        };
+        // 2. 把数据塞进 GitHub Issues（当后台）
+        // 注：Issues 必须开在同仓库且开启匿名写权限（GitHub 目前允许）
+        fetch('https://api.github.com/repos/LSFLi/LSFLi.github.io/issues', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/vnd.github+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: `visit ${body.ip}`,
+            body: JSON.stringify(body, null, 2)
+          })
+        });
+      });
+  </script>
+</body>
+</html>
