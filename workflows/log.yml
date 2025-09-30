@@ -1,0 +1,18 @@
+name: dump
+on:
+  issues:
+    types: [opened]
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p _data
+          echo '${{ toJson(github.event.issue.body) }}' > _data/${{ github.event.issue.number }}.json
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git diff --quiet && git diff --staged --quiet || git commit -m "log issue #${{ github.event.issue.number }}"
+          git push
